@@ -10,6 +10,7 @@ const createQuestion = asyncHandler(async (req, res) => {
   const {
     text,
     img_url,
+    subject_id,        // ✅ added here
     module_id,
     sub_module_id,
     paper_id,
@@ -28,6 +29,7 @@ const createQuestion = asyncHandler(async (req, res) => {
   const question = await Question.create({
     text,
     img_url,
+    subject_id,       // ✅ saved here
     module_id,
     sub_module_id,
     paper_id,
@@ -134,12 +136,11 @@ const deleteQuestion = asyncHandler(async (req, res) => {
 
   await Option.deleteMany({ question_id: question._id });
   await Answer.deleteMany({ question_id: question._id });
-  
-  await question.deleteOne();  // <-- Fix here
+
+  await question.deleteOne();
 
   res.status(200).json({ message: 'Question and related data deleted' });
 });
-
 
 export {
   createQuestion,
