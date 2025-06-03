@@ -2,6 +2,7 @@
 import os from 'os';
 import express from 'express';
 import dotenv from 'dotenv';
+import cors from 'cors'; // ✅ Add this line
 import connectDB from './config/db.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import questionRoutes from './routes/questionRoutes.js';
@@ -15,6 +16,9 @@ dotenv.config();
 connectDB();
 
 const app = express();
+
+// ✅ Enable CORS
+app.use(cors());
 
 app.use(express.json());
 
