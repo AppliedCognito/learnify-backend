@@ -1,0 +1,4 @@
+QuestionText,ImageURL,ModuleId,SubModuleId,PaperId,Year,Difficulty,Explanation,OptionA,OptionB,OptionC,OptionD,CorrectIndex
+What is the capital of France?,,module123,submodule123,paper123,2023,Easy,Paris is the capital of France.,Berlin,Madrid,Paris,Rome,2
+Which planet is known as the Red Planet?,,module456,submodule456,paper456,2022,Medium,Mars is often called the Red Planet.,Earth,Venus,Mars,Jupiter,2
+What is the boiling point of water?,,module789,submodule789,paper789,2024,Easy,Water boils at 100 degrees Celsius.,90°C,100°C,80°C,70°C,1

@@ -3,12 +3,13 @@ import os from 'os';
 import express from 'express';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
-import { notFound, errorHandler } from './middleware/errorMiddleware.js';
+import { notFound, errorHandler } from './middlewares/errorMiddleware.js';
 import questionRoutes from './routes/questionRoutes.js';
 import paperRoutes from './routes/paperRoutes.js';
 import subjectRoutes from './routes/subjectRoutes.js';
 import moduleRoutes from './routes/moduleRoutes.js';
 import subModuleRoutes from './routes/subModuleRoutes.js';
+import questionImportRoutes from './routes/questionImportRoutes.js';
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use('/api/v1/', paperRoutes);
 app.use('/api/v1/', subjectRoutes);
 app.use('/api/v1/', moduleRoutes);
 app.use('/api/v1/', subModuleRoutes);
+app.use('/api/v1/questions/', questionImportRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
