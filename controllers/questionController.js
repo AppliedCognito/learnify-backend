@@ -68,7 +68,8 @@ const createQuestion = asyncHandler(async (req, res) => {
 // @route   GET /questions
 // @access  Public
 const getQuestions = asyncHandler(async (req, res) => {
-  const questions = await Question.find();
+  // Sort questions by createdAt in descending order (latest first)
+  const questions = await Question.find().sort({ createdAt: -1 });
 
   const results = await Promise.all(
     questions.map(async (q) => {
@@ -77,13 +78,14 @@ const getQuestions = asyncHandler(async (req, res) => {
       return {
         ...q.toObject(),
         options,
-        correct_option_id: answer?.option_id
+        correct_option_id: answer?.option_id,
       };
     })
   );
 
   res.status(200).json(results);
 });
+
 
 // @desc    Get a single Question by ID with options
 // @route   GET /questions/:id
