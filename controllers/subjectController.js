@@ -18,11 +18,18 @@ const createSubject = asyncHandler(async (req, res) => {
   res.status(201).json(createdSubject);
 });
 
-// @desc    Get all Subjects
+// @desc    Get all Subjects based on PaperId
 // @route   GET /subjects
 // @access  Public
 const getSubjects = asyncHandler(async (req, res) => {
-  const subjects = await Subject.find().populate('paper_id', 'name');
+  const { paper_id } = req.query;
+
+  if (!paper_id) {
+    res.status(400);
+    throw new Error('paper_id is required');
+  }
+
+  const subjects = await Subject.find({ paper_id }).populate('paper_id', 'name');
   res.status(200).json(subjects);
 });
 
