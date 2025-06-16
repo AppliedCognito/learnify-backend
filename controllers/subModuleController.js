@@ -35,14 +35,18 @@ const getSubModuleById = asyncHandler(async (req, res) => {
 
 // Update submodule
 const updateSubModule = asyncHandler(async (req, res) => {
-  const updated = await SubModule.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-  });
-  if (!updated) {
+  const { module_id, name } = req.body;
+  const subModule = await SubModule.findById(req.params.id);
+
+  if (!subModule) {
     res.status(404);
     throw new Error("SubModule not found");
   }
-  res.json(updated);
+  if (module_id) subModule.module_id = module_id;
+  if (name) subModule.name = name;
+
+  const updatedSubModule = await subModule.save();
+  res.status(200).json(updatedSubModule);
 });
 
 // Delete submodule
