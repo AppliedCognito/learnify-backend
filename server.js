@@ -6,6 +6,7 @@ import cors from 'cors'; // ✅ Add this line
 import connectDB from './config/db.js';
 import { notFound, errorHandler } from './middlewares/errorMiddleware.js';
 import questionRoutes from './routes/questionRoutes.js';
+import quizRoutes from './routes/quizRoutes.js';
 import paperRoutes from './routes/paperRoutes.js';
 import subjectRoutes from './routes/subjectRoutes.js';
 import moduleRoutes from './routes/moduleRoutes.js';
@@ -28,6 +29,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1/', questionRoutes);
+app.use('/api/v1/', quizRoutes);
 app.use('/api/v1/', paperRoutes);
 app.use('/api/v1/', subjectRoutes);
 app.use('/api/v1/', moduleRoutes);

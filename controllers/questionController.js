@@ -1,132 +1,100 @@
 import asyncHandler from 'express-async-handler';
 import { Question } from '../models/questionModel.js';
-import { Option } from '../models/optionModel.js';
-import { Answer } from '../models/answerModel.js';
 
-// @desc    Create a new Question with options and correct answer
+// @desc    Create a new Question
 // @route   POST /questions
 // @access  Public
 const createQuestion = asyncHandler(async (req, res) => {
   const {
     text,
+    statements = [],
     img_url,
-    subject_id,        // ✅ added here
+    paper_id,
+    subject_id,
     module_id,
     sub_module_id,
-    paper_id,
     year,
     difficulty,
     explanation,
-    options,
-    correct_option_index
+    options, // { A, B, C, D }
+    correct_option
   } = req.body;
 
-  if (!options || options.length < 2) {
+  // Validation
+  if (!text || !options || !correct_option) {
     res.status(400);
-    throw new Error('At least two options are required');
+    throw new Error('Question text, options, and correct_option are required');
   }
 
   const question = await Question.create({
     text,
+    statements,
     img_url,
-    subject_id,       // ✅ saved here
+    paper_id,
+    subject_id,
     module_id,
     sub_module_id,
-    paper_id,
     year,
     difficulty,
-    explanation
+    explanation,
+    options,
+    correct_option,
   });
 
-  const savedOptions = await Promise.all(
-    options.map(opt =>
-      Option.create({ question_id: question._id, option_text: opt })
-    )
-  );
-
-  const correctOption = savedOptions[correct_option_index];
-
-  if (!correctOption) {
-    res.status(400);
-    throw new Error('Correct option index is invalid');
-  }
-
-  await Answer.create({
-    question_id: question._id,
-    option_id: correctOption._id
-  });
-
-  res.status(201).json({
-    message: 'Question created',
-    question,
-    options: savedOptions,
-    correct_option_id: correctOption._id
-  });
+  res.status(201).json({ message: 'Question created', question });
 });
 
-// @desc    Get all Questions with options
+// @desc    Get all Questions
 // @route   GET /questions
 // @access  Public
 const getQuestions = asyncHandler(async (req, res) => {
-  // Sort questions by createdAt in descending order (latest first)
-  const questions = await Question.find().sort({ createdAt: -1 });
+  const questions = await Question.find()
+    .populate('paper_id', 'name')
+    .populate('subject_id', 'name')
+    .populate('module_id', 'name')
+    .populate('sub_module_id', 'name')
+    .sort({ createdAt: -1 });
 
-  const results = await Promise.all(
-    questions.map(async (q) => {
-      const options = await Option.find({ question_id: q._id });
-      const answer = await Answer.findOne({ question_id: q._id });
-      return {
-        ...q.toObject(),
-        options,
-        correct_option_id: answer?.option_id,
-      };
-    })
-  );
-
-  res.status(200).json(results);
+  res.status(200).json(questions);
 });
 
-
-// @desc    Get a single Question by ID with options
+// @desc    Get a single Question by ID
 // @route   GET /questions/:id
 // @access  Public
 const getQuestionById = asyncHandler(async (req, res) => {
-  const question = await Question.findById(req.params.id);
+  const question = await Question.findById(req.params.id)
+    .populate('paper_id', 'name')
+    .populate('subject_id', 'name')
+    .populate('module_id', 'name')
+    .populate('sub_module_id', 'name');
 
   if (!question) {
     res.status(404);
     throw new Error('Question not found');
   }
 
-  const options = await Option.find({ question_id: question._id });
-  const answer = await Answer.findOne({ question_id: question._id });
-
-  res.status(200).json({
-    ...question.toObject(),
-    options,
-    correct_option_id: answer?.option_id
-  });
+  res.status(200).json(question);
 });
 
-// @desc    Update a Question (basic fields only)
+// @desc    Update a Question
 // @route   PUT /questions/:id
 // @access  Public
 const updateQuestion = asyncHandler(async (req, res) => {
-  const updated = await Question.findByIdAndUpdate(
+  const question = await Question.findByIdAndUpdate(
     req.params.id,
     req.body,
     { new: true }
   );
 
-  if (!updated) {
+  if (!question) {
     res.status(404);
     throw new Error('Question not found');
   }
 
-  res.status(200).json(updated);
+  res.status(200).json({ message: 'Question updated', question });
 });
 
-// @desc    Delete a Question + its options + answer
+// @desc    Delete a Question
 // @route   DELETE /questions/:id
 // @access  Public
 const deleteQuestion = asyncHandler(async (req, res) => {
@@ -136,12 +104,8 @@ const deleteQuestion = asyncHandler(async (req, res) => {
     throw new Error('Question not found');
   }
 
-  await Option.deleteMany({ question_id: question._id });
-  await Answer.deleteMany({ question_id: question._id });
-
   await question.deleteOne();
-
-  res.status(200).json({ message: 'Question and related data deleted' });
+  res.status(200).json({ message: 'Question deleted successfully' });
 });
 
 export {
